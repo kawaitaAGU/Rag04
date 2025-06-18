@@ -32,7 +32,7 @@ progress_bar = st.progress(0)
 for i, text in enumerate(texts):
     try:
         response = client.embeddings.create(
-            model="text-embedding-ada-002",
+            model="text-embedding-3-small",
             input=text
         )
         embeddings.append(response.data[0].embedding)
