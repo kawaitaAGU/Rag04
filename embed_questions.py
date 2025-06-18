@@ -5,7 +5,7 @@ from openai import OpenAI
 from pathlib import Path
 import time
 
-# ✅ secrets.toml からAPIキー取得
+# ✅ secrets.toml から API キー取得
 if "OPENAI_API_KEY" not in st.secrets:
     st.error("OPENAI_API_KEY が設定されていません。")
     st.stop()
@@ -38,13 +38,13 @@ for i, text in enumerate(texts):
         embeddings.append(response.data[0].embedding)
     except Exception as e:
         st.error(f"エラー（{i}番目）: {e}")
-        embeddings.append([0.0] * 1536)  # placeholder で埋める
+        embeddings.append([0.0] * 1536)  # エラー時はダミーで埋める
 
     progress_bar.progress((i + 1) / len(texts))
 
-# ✅ 保存
-output_path = Path("embeddings.pkl")
-with open(output_path, "wb") as f:
+# ✅ Macのデスクトップに保存
+desktop_path = Path.home() / "Desktop" / "embeddings.pkl"
+with open(desktop_path, "wb") as f:
     pickle.dump({"embeddings": embeddings, "df": df}, f)
 
-st.success(f"✅ {output_path.name} を保存しました！")
+st.success(f"✅ デスクトップに保存しました: {desktop_path}")
