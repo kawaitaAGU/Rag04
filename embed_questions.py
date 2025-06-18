@@ -4,6 +4,8 @@ import pickle
 from openai import OpenAI
 from pathlib import Path
 import time
+import io
+import base64
 
 # ✅ secrets.toml から API キー取得
 if "OPENAI_API_KEY" not in st.secrets:
@@ -24,8 +26,7 @@ df = pd.read_csv(csv_path)
 texts = df["設問"].astype(str).tolist()
 embeddings = []
 
-st.write(f"✅ 全 {len(texts)} 問に対してEmbeddingを作成します。")
-
+st.write(f"✅ 全 {len(texts)} 問に対して Embedding を作成します。")
 progress_bar = st.progress(0)
 
 # ✅ 埋め込み生成（進捗表示付き）
@@ -42,9 +43,17 @@ for i, text in enumerate(texts):
 
     progress_bar.progress((i + 1) / len(texts))
 
-# ✅ Macのデスクトップに保存
-desktop_path = Path.home() / "Desktop" / "embeddings.pkl"
-with open(desktop_path, "wb") as f:
-    pickle.dump({"embeddings": embeddings, "df": df}, f)
+# ✅ 保存する内容をバイトストリームへ書き出し
+output_data = io.BytesIO()
+pickle.dump({"embeddings": embeddings, "df": df}, output_data)
+output_data.seek(0)
 
-st.success(f"✅ デスクトップに保存しました: {desktop_path}")
+# ✅ ダウンロードボタンでローカルに保存できるようにする
+st.download_button(
+    label="📥 embeddings.pkl をダウンロード",
+    data=output_data,
+    file_name="embeddings.pkl",
+    mime="application/octet-stream"
+)
+
+st.success("✅ embeddings.pkl の生成が完了しました。必要に応じて上からダウンロードしてください。")
